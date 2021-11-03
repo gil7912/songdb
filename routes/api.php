@@ -19,3 +19,18 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/songs/read', 'SongController@read');
+Route::post('/songs/search', 'SongController@search');
+Route::post('/songs/artist', 'SongController@searchByArtistId');
+Route::post('/songs/readDetail', 'SongController@readDetail');
+Route::post('/songs/create', 'SongController@create');
+Route::put('/songs/update', 'SongController@update');
+
+Route::get('/artists/read', 'ArtistController@read');
+Route::post('/artists/search', 'ArtistController@search');
+Route::post('/artists/readDetail', 'ArtistController@readDetail');
+Route::post('/artists/create', 'ArtistController@create');
+Route::put('/artists/update', 'ArtistController@update');
+Route::get('/artists/pulldown', 'ArtistController@readForPullDown');
+
+
+Route::get('/octave/read', 'OctaveController@read');

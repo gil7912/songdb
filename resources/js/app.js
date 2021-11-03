@@ -9,6 +9,11 @@ require('./bootstrap');
 
 window.Vue = require('vue');
 
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
+import locale from 'element-ui/lib/locale/lang/ja'
+
+Vue.use(ElementUI, { locale })
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -31,14 +36,19 @@ Vue.component('app-component', require('./components/AppComponent.vue').default)
   const router = new VueRouter({
       routes: [
           {
-              path: '/songs',
-              name: 'songs',
-              component: () => import('./components/songs/Songs.vue'),
+            path: '/song',
+            name: 'song',
+            component: () => import('./components/song/Song.vue'),
           },
           {
-              path: '/search',
-              name: 'search',
-              component: () => import('./components/search/Search.vue'),
+            path: '/search',
+            name: 'search',
+            component: () => import('./components/search/Search.vue'),
+          },
+          {
+            path: '/artist',
+            name: 'artist',
+            component: () => import('./components/artist/Artist.vue'),
           },
       ]
   });
