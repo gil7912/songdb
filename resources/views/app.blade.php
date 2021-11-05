@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Laravue') }}</title>
     <link href="{{ mix('/css/app.css') }}" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ asset('/favicon.ico') }}">
 </head>
 <body>
 <div id="app">
