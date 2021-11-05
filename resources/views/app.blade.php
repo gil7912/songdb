@@ -7,6 +7,7 @@
     <title>{{ config('app.name', 'Laravue') }}</title>
     <link href="{{ mix('/css/app.css') }}" rel="stylesheet">
     <link rel="shortcut icon" href="{{ asset('/favicon.ico') }}">
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180">
 </head>
 <body>
 <div id="app">
