@@ -17,7 +17,7 @@
             </el-col>
         </el-header>
         <el-main class="main">
-        <el-form :model="song" label-position="top">
+        <el-form :model="song" label-position="top" v-loading="loading">
             <el-card class="main-card">
                 <div slot="header" class="clearfix">
                     <span>必須</span>
@@ -143,11 +143,13 @@ export default {
                 {label:'F♯',value: 9},
                 {label:'G',value: 10},
                 {label:'G♯',value: 11}
-            ]
+            ],
+            loading:false
         };
     },
     methods: {
         create() {
+            this.loading=true;
             this.song.highest_note = this.octave_1 * 12 + this.octave_2 + 1;
             console.log(this.song);
             axios.post("/api/songs/create", this.song).then((res) => {
@@ -156,6 +158,7 @@ export default {
                     message: '登録しました',
                     type: 'success'
                 });
+                this.loading=false;
                 this.$router.push({
                 path: '/search',
                     query:{
@@ -168,10 +171,12 @@ export default {
                     message: '登録失敗しました...',
                     type: 'error'
                 });
+                this.loading=false;
                 console.log(e)
             });
         },
         update() {
+            this.loading=true;
             console.log(this.octave_1);
             console.log(this.octave_2);
             this.song.highest_note = this.octave_1 * 12 + this.octave_2 + 1;
@@ -182,6 +187,7 @@ export default {
                     message: '更新しました',
                     type: 'success'
                 });
+                this.loading=false;
                 this.$router.push({
                     path: '/search',
                     query:{
@@ -194,6 +200,7 @@ export default {
                     message: '更新失敗しました...',
                     type: 'error'
                 });
+                this.loading=false;
                 console.log(e)
             });
         },

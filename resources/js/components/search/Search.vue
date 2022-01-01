@@ -10,7 +10,7 @@
                         <el-button @click="searchSongs">検索</el-button>
                     </el-col>
                 </el-row>
-                <el-table ref="songTable" :data="songs" @row-click="selectSong" highlight-current-row max-height="450">
+                <el-table ref="songTable" :data="songs" @row-click="selectSong" highlight-current-row max-height="450" v-loading="loading">
                     <el-table-column prop="song_title" label="タイトル" width="80px">
                     </el-table-column>
                     <el-table-column prop="artist_name" label="アーティスト" width="113px">
@@ -33,7 +33,7 @@
                         <el-button @click="searchArtists">検索</el-button>
                     </el-col>
                 </el-row>
-                <el-table ref="artistTable" :data="artists" @expand-change="expandArtist" @row-click="selectArtist" highlight-current-row max-height="450">
+                <el-table ref="artistTable" :data="artists" @expand-change="expandArtist" @row-click="selectArtist" highlight-current-row max-height="450" v-loading="loading">
                     <el-table-column type="expand" width="40px">
                         <template slot-scope="props">
                             <el-table ref="artistSongTable" :data="props.row.songs" v-loading="loading" @row-click="selectArtistSong" highlight-current-row >
@@ -81,6 +81,7 @@ export default {
             });
         },
         searchSongs(){
+            this.loading=true;
             console.log(this.searchKey);
             axios.post('/api/songs/search', {searchKey: this.searchKey}).then((res) => {
                 this.songs = res.data;
@@ -165,15 +166,20 @@ export default {
 
         // アーティスト
         artistsRead() {
+            this.loading = true;
             axios.get("/api/artists/read").then((res) => {
                 this.artists = res.data;
                 this.artists.map(artist => {
                     artist.expand = false;
                     artist.songs = [];
                 });
+                this.loading = false;
+            }).catch((e)=> {
+                this.loading = false;
             });
         },
         searchArtists(){
+            this.loading = true;
             console.log(this.searchKey);
             axios.post('/api/artists/search', {searchKey: this.searchKey}).then((res) => {
                 this.artists = res.data;
@@ -181,6 +187,9 @@ export default {
                     artist.expand = false;
                     artist.songs = [];
                 });
+                this.loading = false;
+            }).catch((e)=> {
+                this.loading = false;
             });
         },
         expandArtist(row, expanded){
@@ -196,11 +205,11 @@ export default {
                     axios.post('/api/songs/artist', {artistIds: idList}).then((res) => {
                         console.log(res.data);
                         res.data.forEach(song => row.songs.push(song));
+                        this.loading = false;
                     });
                 } catch(e){
                     this.loading = false;
                 }
-                this.loading = false;
             }
         }
     },

@@ -34,7 +34,9 @@ class SongController extends Controller
         $artistIds = $request->artistIds;
         
         $query = Song::leftjoin('sys_mst_octaves', 'mst_song.highest_note', '=', 'sys_mst_octaves.scale')
-        ->whereIn('artist_id', $artistIds);
+        ->whereIn('artist_id', $artistIds)
+        ->orWhereIn('sub_artist_1', $artistIds)
+        ->orWhereIn('sub_artist_2', $artistIds);
         $data = $query->get();
         return $data;
     }

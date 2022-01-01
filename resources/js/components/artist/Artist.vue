@@ -17,7 +17,7 @@
             </el-col>
         </el-header>
         <el-main class="main">
-        <el-form :model="artist" label-position="top">
+        <el-form :model="artist" label-position="top" v-loading="loading">
             <el-card class="main-card">
                 <el-form-item label-width="150px" label="アーティスト名">
                     <el-input class="input" v-model="artist.artist_name"></el-input>
@@ -72,16 +72,19 @@ export default {
                 memo:null,
             },
             artistList:[],
+            loading: false
         };
     },
     methods: {
         create() {
+            this.loading=true;
             axios.post("/api/artists/create", this.artist).then((res) => {
                 this.$message({
                     showClose: true,
                     message: '登録しました',
                     type: 'success'
                 });
+                this.loading=false;
                 this.$router.push({
                 path: '/search',
                     query:{
@@ -94,10 +97,12 @@ export default {
                     message: '登録失敗しました...',
                     type: 'error'
                 });
+                this.loading=false;
                 console.log(e)
             });
         },
         update() {
+            this.loading=true;
             console.log(this.artist);
             axios.put("/api/artists/update", this.artist).then((res) => {
                 this.$message({
@@ -105,6 +110,7 @@ export default {
                     message: '更新しました',
                     type: 'success'
                 });
+                this.loading=false;
                 this.$router.push({
                 path: '/search',
                     query:{
@@ -117,6 +123,7 @@ export default {
                     message: '更新失敗しました...',
                     type: 'error'
                 });
+                this.loading=false;
                 console.log(e)
             });
         },
