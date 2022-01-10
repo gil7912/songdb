@@ -85,8 +85,10 @@ export default {
             console.log(this.searchKey);
             axios.post('/api/songs/search', {searchKey: this.searchKey}).then((res) => {
                 this.songs = res.data;
-
+                this.loading=false;
                 console.log(res.data)
+            }).catch((e)=> {
+                this.loading = false;
             });
         },
         selectSong(row){
