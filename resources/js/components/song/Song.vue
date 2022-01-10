@@ -31,9 +31,11 @@
                     <span>任意</span>
                 </div>
                 <el-form-item label-width="150px" label="アーティスト">
-                    <el-select v-model="song.artist_id" clearable placeholder="Select">
+                    <el-select v-model="song.artist_id" clearable placeholder="Select"
+                    filterable remote reserve-keyword
+                    :remote-method="suggestArtist1">
                         <el-option
-                        v-for="item in artists"
+                        v-for="item in filterArtists1"
                         :key="item.artist_id"
                         :label="item.artist_name"
                         :value="item.artist_id">
@@ -66,9 +68,11 @@
                 </el-form-item>
 
                 <el-form-item label-width="150px" label="アーティスト2">
-                    <el-select v-model="song.sub_artist_1" clearable placeholder="Select">
+                    <el-select v-model="song.sub_artist_1" clearable placeholder="Select"
+                    filterable remote reserve-keyword
+                    :remote-method="suggestArtist2">
                         <el-option
-                        v-for="item in artists"
+                        v-for="item in filterArtists2"
                         :key="item.artist_id"
                         :label="item.artist_name"
                         :value="item.artist_id">
@@ -76,9 +80,11 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label-width="150px" label="アーティスト3">
-                    <el-select v-model="song.sub_artist_2" clearable placeholder="Select">
+                    <el-select v-model="song.sub_artist_2" clearable placeholder="Select"
+                    filterable remote reserve-keyword
+                    :remote-method="suggestArtist3">
                         <el-option
-                        v-for="item in artists"
+                        v-for="item in filterArtists3"
                         :key="item.artist_id"
                         :label="item.artist_name"
                         :value="item.artist_id">
@@ -119,6 +125,9 @@ export default {
                 memo:null,
             },
             artists:[],
+            filterArtists1: [],
+            filterArtists2: [],
+            filterArtists3: [],
             octaves:[],
             octave_1:null,
             octave_2:null,
@@ -151,7 +160,6 @@ export default {
         create() {
             this.loading=true;
             this.song.highest_note = this.octave_1 * 12 + this.octave_2 + 1;
-            console.log(this.song);
             axios.post("/api/songs/create", this.song).then((res) => {
                 this.$message({
                     showClose: true,
@@ -177,10 +185,7 @@ export default {
         },
         update() {
             this.loading=true;
-            console.log(this.octave_1);
-            console.log(this.octave_2);
             this.song.highest_note = this.octave_1 * 12 + this.octave_2 + 1;
-            console.log(this.song)
             axios.put("/api/songs/update", this.song).then((res) => {
                 this.$message({
                     showClose: true,
@@ -214,15 +219,53 @@ export default {
         },
         artistReadForPullDown() {
             axios.get("/api/artists/pulldown").then((res) => {
-                this.artists = res.data;
-                console.log(this.artists);
+                if(this.song.song_id){
+                    if(this.song.artist_id){
+                        this.filterArtists1 = res.data.filter((artist) => this.song.artist_id === artist.artist_id);
+                    }
+                    if(this.song.sub_artist_1){
+                        this.filterArtists2 = res.data.filter((artist) => this.song.sub_artist_1 === artist.artist_id);;
+                    }
+                    if(this.song.sub_artist_2){
+                        this.filterArtists3 = res.data.filter((artist) => this.song.sub_artist_2 === artist.artist_id);;
+                    }
+                }
             });
         },
         octaveRead() {
             axios.get("/api/octave/read").then((res) => {
                 this.octaves = res.data;
-                console.log(this.octaves);
             });
+        },
+        suggestArtist1(query) {
+            if (query !== '') {
+                axios.post('/api/artists/search', {searchKey: query}).then((res) => {
+                    this.filterArtists1 = res.data;
+                }).catch((e)=> {
+                });
+            } else {
+                this.filterArtists1 = [];
+            }
+        },
+        suggestArtist2(query) {
+            if (query !== '') {
+                axios.post('/api/artists/search', {searchKey: query}).then((res) => {
+                    this.filterArtists2 = res.data;
+                }).catch((e)=> {
+                });
+            } else {
+                this.filterArtists2 = [];
+            }
+        },
+        suggestArtist3(query) {
+            if (query !== '') {
+                axios.post('/api/artists/search', {searchKey: query}).then((res) => {
+                    this.filterArtists3 = res.data;
+                }).catch((e)=> {
+                });
+            } else {
+                this.filterArtists3 = [];
+            }
         },
         back(){
             this.$router.push({
@@ -235,12 +278,11 @@ export default {
     },
     mounted() {
         this.song.song_id = this.$route.query.songId;
-
-        this.artistReadForPullDown();
-        this.octaveRead();
         if(this.song.song_id){
             this.songRead();
         }
+        this.artistReadForPullDown();
+        this.octaveRead();
     },
 };
 </script>

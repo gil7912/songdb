@@ -46,7 +46,7 @@ class ArtistController extends Controller
     public function readForPullDown()
     {
         $data = Artist::from('mst_artist as main')
-        ->select('main.artist_id','main.artist_name')
+        ->select('main.artist_id','main.artist_name', 'main.artist_name_jp', 'main.artist_name_en')
         ->get();
         return $data;
     }
