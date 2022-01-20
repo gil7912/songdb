@@ -20,6 +20,7 @@
                     <el-table-column prop="scale_name" label="最高音" width="70px">
                     </el-table-column>
                 </el-table>
+                <el-pagination layout="total" :total="songs.length"></el-pagination>
                 <el-button class="edit_button" type="primary" circle icon="el-icon-edit" @click="editSong">
                 </el-button>
             </el-tab-pane>
@@ -44,6 +45,7 @@
                                 <el-table-column prop="scale_name" label="最高音" width="65px">
                                 </el-table-column>
                             </el-table>
+                            <el-pagination layout="total" :total="props.row.songs.length"></el-pagination>
                         </template>
                     </el-table-column>
                     <el-table-column prop="artist_name" label="アーティスト" width="153px">
@@ -51,6 +53,7 @@
                     <el-table-column prop="alter_name_1" label="別名義1" width="150px">
                     </el-table-column>
                 </el-table>
+                <el-pagination layout="total" :total="artists.length"></el-pagination>
                 <el-button class="edit_button" type="primary" circle icon="el-icon-edit" @click="editX">
                 </el-button>
             </el-tab-pane>

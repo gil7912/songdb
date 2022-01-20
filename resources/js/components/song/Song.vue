@@ -31,16 +31,12 @@
                     <span>任意</span>
                 </div>
                 <el-form-item label-width="150px" label="アーティスト">
-                    <el-select v-model="song.artist_id" clearable placeholder="Select"
-                    filterable remote reserve-keyword
-                    :remote-method="suggestArtist1">
-                        <el-option
-                        v-for="item in filterArtists1"
-                        :key="item.artist_id"
-                        :label="item.artist_name"
-                        :value="item.artist_id">
-                        </el-option>
-                    </el-select>
+                    <el-autocomplete
+                        v-model="displays.artist_name_1"
+                        :fetch-suggestions="suggestArtist"
+                        placeholder="Please Input"
+                        @select="selectArtist1"
+                    ></el-autocomplete>
                 </el-form-item>
                 <el-form-item label-width="150px" label="最高音">
                     <el-select class="notes" v-model="octave_1" clearable placeholder="Select">
@@ -68,28 +64,20 @@
                 </el-form-item>
 
                 <el-form-item label-width="150px" label="アーティスト2">
-                    <el-select v-model="song.sub_artist_1" clearable placeholder="Select"
-                    filterable remote reserve-keyword
-                    :remote-method="suggestArtist2">
-                        <el-option
-                        v-for="item in filterArtists2"
-                        :key="item.artist_id"
-                        :label="item.artist_name"
-                        :value="item.artist_id">
-                        </el-option>
-                    </el-select>
+                    <el-autocomplete
+                        v-model="displays.artist_name_2"
+                        :fetch-suggestions="suggestArtist"
+                        placeholder="Please Input"
+                        @select="selectArtist2"
+                    ></el-autocomplete>
                 </el-form-item>
                 <el-form-item label-width="150px" label="アーティスト3">
-                    <el-select v-model="song.sub_artist_2" clearable placeholder="Select"
-                    filterable remote reserve-keyword
-                    :remote-method="suggestArtist3">
-                        <el-option
-                        v-for="item in filterArtists3"
-                        :key="item.artist_id"
-                        :label="item.artist_name"
-                        :value="item.artist_id">
-                        </el-option>
-                    </el-select>
+                    <el-autocomplete
+                        v-model="displays.artist_name_3"
+                        :fetch-suggestions="suggestArtist"
+                        placeholder="Please Input"
+                        @select="selectArtist3"
+                    ></el-autocomplete>
                 </el-form-item>
                 <el-form-item label-width="150px" label="最高得点">
                     <el-input class="input" v-model="song.high_score"></el-input>
@@ -125,9 +113,6 @@ export default {
                 memo:null,
             },
             artists:[],
-            filterArtists1: [],
-            filterArtists2: [],
-            filterArtists3: [],
             octaves:[],
             octave_1:null,
             octave_2:null,
@@ -153,6 +138,11 @@ export default {
                 {label:'G',value: 10},
                 {label:'G♯',value: 11}
             ],
+            displays: {
+                artist_name_1: '',
+                artist_name_2: '',
+                artist_name_3: '',
+            },
             loading:false
         };
     },
@@ -217,18 +207,21 @@ export default {
                 console.log(this.song);
             });
         },
-        artistReadForPullDown() {
+        artistRead() {
             axios.get("/api/artists/pulldown").then((res) => {
+                this.artists = res.data;
                 if(this.song.song_id){
-                    if(this.song.artist_id){
-                        this.filterArtists1 = res.data.filter((artist) => this.song.artist_id === artist.artist_id);
-                    }
-                    if(this.song.sub_artist_1){
-                        this.filterArtists2 = res.data.filter((artist) => this.song.sub_artist_1 === artist.artist_id);;
-                    }
-                    if(this.song.sub_artist_2){
-                        this.filterArtists3 = res.data.filter((artist) => this.song.sub_artist_2 === artist.artist_id);;
-                    }
+                    res.data.forEach(r => {
+                        if(this.song.artist_id && this.song.artist_id === r.artist_id){
+                            this.displays.artist_name_1 = r.artist_name;
+                        }
+                        if(this.song.sub_artist_1 && this.song.sub_artist_1 === r.artist_id){
+                            this.displays.artist_name_2 = r.artist_name;
+                        }
+                        if(this.song.sub_artist_2 && this.song.sub_artist_2 === r.artist_id){
+                            this.displays.artist_name_3 = r.artist_name;
+                        }
+                    });
                 }
             });
         },
@@ -237,35 +230,40 @@ export default {
                 this.octaves = res.data;
             });
         },
-        suggestArtist1(query) {
-            if (query !== '') {
-                axios.post('/api/artists/search', {searchKey: query}).then((res) => {
-                    this.filterArtists1 = res.data;
-                }).catch((e)=> {
-                });
-            } else {
-                this.filterArtists1 = [];
-            }
+        suggestArtist(query, cb) {
+            console.log(query)
+            axios.post('/api/artists/search', {searchKey: query}).then((res) => {
+                console.log(res.data)
+                const results = res.data.map((r) => {return {value: r.artist_name, artist_id: String(r.artist_id)}})
+                console.log(results)
+                cb(results)
+            }).catch((e)=> {
+            });
         },
-        suggestArtist2(query) {
-            if (query !== '') {
-                axios.post('/api/artists/search', {searchKey: query}).then((res) => {
-                    this.filterArtists2 = res.data;
-                }).catch((e)=> {
-                });
-            } else {
-                this.filterArtists2 = [];
-            }
+        selectArtist1(artist){
+            this.song.artist_id = artist.artist_id;
+            this.displays.artist_name_1 = artist.value;
         },
-        suggestArtist3(query) {
-            if (query !== '') {
-                axios.post('/api/artists/search', {searchKey: query}).then((res) => {
-                    this.filterArtists3 = res.data;
-                }).catch((e)=> {
-                });
-            } else {
-                this.filterArtists3 = [];
-            }
+        selectArtist2(artist){
+            this.song.sub_artist_1 = artist.artist_id;
+            this.displays.artist_name_2 = artist.value;
+        },  
+        selectArtist3(artist){
+            this.song.sub_artist_2 = artist.artist_id;
+            this.displays.artist_name_3 = artist.value;
+        },
+        checkArtist(){
+            this.artists.forEach(r => {
+                if(this.song.artist_id && this.song.artist_id === r.artist_id && this.displays.artist_name_1 !== r.artist_name){
+                    this.songs.artist_id = "";
+                }
+                if(this.song.sub_artist_1 && this.song.sub_artist_1 === r.artist_id && this.displays.artist_name_2 !== r.artist_name){
+                    this.songs.sub_artist_1 = "";
+                }
+                if(this.song.sub_artist_2 && this.song.sub_artist_2 === r.artist_id && this.displays.artist_name_3 !== r.artist_name){
+                    this.songs.sub_artist_2 = "";
+                }
+            });
         },
         back(){
             this.$router.push({
@@ -281,7 +279,7 @@ export default {
         if(this.song.song_id){
             this.songRead();
         }
-        this.artistReadForPullDown();
+        this.artistRead();
         this.octaveRead();
     },
 };
@@ -307,9 +305,7 @@ export default {
     .el-select-dropdown__item {
         padding-left: 20px;
     }
-    .el-card {
-    }
-    .el-select {
+    .el-autocomplete {
         width: 100%;
     }
     .notes {
