@@ -1,0 +1,16 @@
+{
+    "short_name": "Song DB",
+    "name": "Song DB",
+    "background_color": "#fff",
+    "theme_color": "#fff",
+    "display": "standalone",
+    "scope": "/",
+    "start_url": "/search",
+    "icons": [
+      {
+        "src": "apple-touch-icon.png",
+        "type": "image/png",
+        "sizes": "180x180"
+      }
+    ]
+  }

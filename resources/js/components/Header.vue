@@ -1,10 +1,11 @@
 <template>
-    <!-- <div class="header">
-        <div class="header_nav">
+    <div class="header">
+        <!-- <div class="header_nav">
             <router-link to="/song">song</router-link>
             <router-link to="/search">search</router-link>
-        </div>
-    </div> -->
+        </div> -->
+        <link rel="manifest" href="/manifest.json">
+    </div>
 </template>
 
 <style scoped>
