@@ -29,24 +29,20 @@
                     <el-input class="input" v-model="artist.artist_name_en"></el-input>
                 </el-form-item>
                 <el-form-item label-width="150px" label="別名義1">
-                    <el-select v-model="artist.alter_1" clearable placeholder="Select">
-                        <el-option
-                        v-for="item in artistList"
-                        :key="item.artist_id"
-                        :label="item.artist_name"
-                        :value="item.artist_id">
-                        </el-option>
-                    </el-select>
+                    <el-autocomplete
+                        v-model="displays.alter_1"
+                        :fetch-suggestions="suggestArtist"
+                        placeholder="Please Input"
+                        @select="selectAlter1"
+                    ></el-autocomplete>
                 </el-form-item>
                 <el-form-item label-width="150px" label="別名義2">
-                    <el-select v-model="artist.alter_2" clearable placeholder="Select">
-                        <el-option
-                        v-for="item in artistList"
-                        :key="item.artist_id"
-                        :label="item.artist_name"
-                        :value="item.artist_id">
-                        </el-option>
-                    </el-select>
+                    <el-autocomplete
+                        v-model="displays.alter_2"
+                        :fetch-suggestions="suggestArtist"
+                        placeholder="Please Input"
+                        @select="selectAlter2"
+                    ></el-autocomplete>
                 </el-form-item>
                 <el-form-item label-width="150px" label="メモ">
                     <el-input type="textarea" class="input" v-model="artist.memo"></el-input>
@@ -70,6 +66,10 @@ export default {
                 alter_1:null,
                 alter_2:null,
                 memo:null,
+            },
+            displays: {
+                alter_1: '',
+                alter_2: '',
             },
             artistList:[],
             loading: false
@@ -127,6 +127,24 @@ export default {
                 console.log(e)
             });
         },
+        suggestArtist(query, cb) {
+            console.log(query)
+            axios.post('/api/artists/search', {searchKey: query}).then((res) => {
+                console.log(res.data)
+                const results = res.data.map((r) => {return {value: r.artist_name, artist_id: String(r.artist_id)}})
+                console.log(results)
+                cb(results)
+            }).catch((e)=> {
+            });
+        },
+        selectAlter1(artist){
+            this.artist.alter_1 = artist.artist_id;
+            this.displays.alter_1 = artist.value;
+        },
+        selectAlter2(artist){
+            this.artist.alter_2 = artist.artist_id;
+            this.displays.alter_2 = artist.value;
+        },
         artistRead() {
             axios.post("/api/artists/readDetail", {artistId: this.artist.artist_id}).then((res) => {
                 this.artist = res.data;
@@ -135,6 +153,16 @@ export default {
         artistsReadForPullDown() {
             axios.get("/api/artists/pulldown").then((res) => {
                 this.artistList = res.data;
+                if(this.artist.artist_id){
+                    res.data.forEach(r => {
+                        if(this.artist.alter_1 && this.artist.alter_1 === r.artist_id){
+                            this.displays.alter_1 = r.artist_name;
+                        }
+                        if(this.artist.alter_2 && this.artist.alter_2 === r.artist_id){
+                            this.displays.alter_2 = r.artist_name;
+                        }
+                    });
+                }
             });
         },
         back(){
@@ -175,8 +203,6 @@ export default {
     }
     .el-select-dropdown__item {
         padding-left: 20px;
-    }
-    .el-card {
     }
     .el-select {
         width: 100%;
