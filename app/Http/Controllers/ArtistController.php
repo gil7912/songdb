@@ -22,14 +22,22 @@ class ArtistController extends Controller
     public function search(Request $request)
     {
         $keyword = $request->searchKey;
+        $orderKey = $request->orderKey;
+        $orderValue = $request->orderValue;
         
+        if(!$orderKey || !$orderValue){
+            $orderKey = 'artist_id';
+            $orderValue = 'asc';
+        }
+
         $query = Artist::from('mst_artist as main')
         ->select('main.artist_id','main.alter_1','main.alter_2','main.artist_name','alter_artist_1.artist_name as alter_name_1','alter_artist_2.artist_name as alter_name_2')
         ->leftjoin('mst_artist as alter_artist_1', 'alter_artist_1.artist_id', '=', 'main.alter_1')
         ->leftjoin('mst_artist as alter_artist_2', 'alter_artist_2.artist_id', '=', 'main.alter_2')
         ->where('main.artist_name', 'LIKE', "{$keyword}%")
         ->orWhere('main.artist_name_jp', 'LIKE', "{$keyword}%")
-        ->orWhere('main.artist_name_en', 'LIKE', "{$keyword}%");
+        ->orWhere('main.artist_name_en', 'LIKE', "{$keyword}%")
+        ->orderBy($orderKey, $orderValue);;
         $data = $query->get();
         return $data;
     }

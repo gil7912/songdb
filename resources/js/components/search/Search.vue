@@ -10,14 +10,14 @@
                         <el-button @click="searchSongs">検索</el-button>
                     </el-col>
                 </el-row>
-                <el-table ref="songTable" :data="songs" @row-click="selectSong" highlight-current-row max-height="450" v-loading="loading">
-                    <el-table-column prop="song_title" label="タイトル" width="80px">
+                <el-table ref="songTable" :data="songs" @row-click="selectSong" highlight-current-row max-height="515" v-loading="loading" @sort-change="sortChangeSong" style="width: 100%">
+                    <el-table-column prop="song_title" label="タイトル" min-width="95" sortable>
                     </el-table-column>
-                    <el-table-column prop="artist_name" label="アーティスト" width="113px">
+                    <el-table-column prop="artist_name" label="アーティスト" min-width="125" sortable>
                     </el-table-column>
-                    <el-table-column prop="high_score" label="最高点" width="65px">
+                    <el-table-column prop="high_score" label="最高点" min-width="65" sortable>
                     </el-table-column>
-                    <el-table-column prop="scale_name" label="最高音" width="70px">
+                    <el-table-column prop="scale_name" label="最高音" min-width="70" sortable>
                     </el-table-column>
                 </el-table>
                 <el-pagination layout="total" :total="songs.length"></el-pagination>
@@ -34,23 +34,23 @@
                         <el-button @click="searchArtists">検索</el-button>
                     </el-col>
                 </el-row>
-                <el-table ref="artistTable" :data="artists" @expand-change="expandArtist" @row-click="selectArtist" highlight-current-row max-height="450" v-loading="loading">
-                    <el-table-column type="expand" width="40px">
+                <el-table ref="artistTable" :data="artists" @expand-change="expandArtist" @row-click="selectArtist" highlight-current-row max-height="515" v-loading="loading" @sort-change="sortChangeArtist" style="width: 100%">
+                    <el-table-column type="expand" min-width="35">
                         <template slot-scope="props">
-                            <el-table ref="artistSongTable" :data="props.row.songs" v-loading="loading" @row-click="selectArtistSong" highlight-current-row >
-                                <el-table-column prop="song_title" label="タイトル" width="200px">
+                            <el-table ref="artistSongTable" :data="props.row.songs" v-loading="loading" @row-click="selectArtistSong" highlight-current-row style="width: 100%">
+                                <el-table-column prop="song_title" label="タイトル" min-width="215">
                                 </el-table-column>
-                                <el-table-column prop="high_score" label="最高点" width="65px">
+                                <el-table-column prop="high_score" label="最高点" min-width="65">
                                 </el-table-column>
-                                <el-table-column prop="scale_name" label="最高音" width="65px">
+                                <el-table-column prop="scale_name" label="最高音" min-width="70">
                                 </el-table-column>
                             </el-table>
                             <el-pagination layout="total" :total="props.row.songs.length"></el-pagination>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="artist_name" label="アーティスト" width="153px">
+                    <el-table-column prop="artist_name" label="アーティスト" min-width="155" sortable>
                     </el-table-column>
-                    <el-table-column prop="alter_name_1" label="別名義1" width="150px">
+                    <el-table-column prop="alter_name_1" label="別名義1" min-width="155" sortable>
                     </el-table-column>
                 </el-table>
                 <el-pagination layout="total" :total="artists.length"></el-pagination>
@@ -73,6 +73,8 @@ export default {
             selectedArtistSong:'',
             currentRow: null,
             loading: false,
+            orderKey: '',
+            orderValue: ''
         };
     },
     methods: {
@@ -85,13 +87,34 @@ export default {
         },
         searchSongs(){
             this.loading=true;
+            this.selectedSong = '';
             console.log(this.searchKey);
-            axios.post('/api/songs/search', {searchKey: this.searchKey}).then((res) => {
+            console.log(this.orderKey);
+            console.log(this.orderValue);
+            axios.post('/api/songs/search', {searchKey: this.searchKey, orderKey: this.orderKey, orderValue: this.orderValue}).then((res) => {
                 this.songs = res.data;
                 this.loading = false;
             }).catch((e)=> {
                 this.loading = false;
             });
+        },
+        sortChangeSong(column) {
+            if(!column.order){
+                this.orderKey = '';
+                this.orderValue = '';
+            } else {
+                if(column.prop === 'scale_name'){
+                    this.orderKey = 'scale';
+                } else {
+                    this.orderKey = column.prop;
+                }
+                if(column.order === 'ascending'){
+                    this.orderValue = 'asc';
+                } else if(column.order === 'descending') {
+                    this.orderValue = 'desc';
+                }
+            }
+            this.searchSongs();
         },
         selectSong(row){
             if(this.currentRow === row){
@@ -182,10 +205,32 @@ export default {
                 this.loading = false;
             });
         },
+        sortChangeArtist(column) {
+            if(!column.order){
+                this.orderKey = '';
+                this.orderValue = '';
+            } else {
+                if(column.prop === 'scale_name'){
+                    this.orderKey = 'scale';
+                } else {
+                    this.orderKey = column.prop;
+                }
+                if(column.order === 'ascending'){
+                    this.orderValue = 'asc';
+                } else if(column.order === 'descending') {
+                    this.orderValue = 'desc';
+                }
+            }
+            this.searchArtists();
+        },
         searchArtists(){
             this.loading = true;
+            this.selectedArtist = '';
+            this.selectedArtistSong = '';
             console.log(this.searchKey);
-            axios.post('/api/artists/search', {searchKey: this.searchKey}).then((res) => {
+            console.log(this.orderKey);
+            console.log(this.orderValue);
+            axios.post('/api/artists/search', {searchKey: this.searchKey, orderKey: this.orderKey, orderValue: this.orderValue}).then((res) => {
                 this.artists = res.data;
                 this.artists.map(artist => {
                     artist.expand = false;
@@ -246,6 +291,7 @@ export default {
         right: 15px;
         width: 60px;
         height: 60px;
+        z-index: 1;
     }
 
 </style>
