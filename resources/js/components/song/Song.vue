@@ -23,7 +23,7 @@
                     <span>必須</span>
                 </div>
                 <el-form-item label-width="150px" label="楽曲名">
-                    <el-input class="input" v-model="song.song_title"></el-input>
+                    <el-input class="input" id="song_title" v-model="song.song_title" @input="handleName"></el-input>
                 </el-form-item>
             </el-card>
             <el-card class="option-card">
@@ -57,7 +57,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label-width="150px" label="楽曲名(かな)">
-                    <el-input class="input" v-model="song.song_title_jp"></el-input>
+                    <el-input class="input" id="song_title_jp"  v-model="song.song_title_jp"></el-input>
                 </el-form-item>
                 <el-form-item label-width="150px" label="楽曲名(English)">
                     <el-input class="input" v-model="song.song_title_en"></el-input>
@@ -93,15 +93,21 @@
 </template>
 
 <script>
+import * as AutoKana from 'vanilla-autokana';
+let autokana;
+const Romanizer = require('js-hira-kata-romanize');
+const r = new Romanizer({
+    chouon: Romanizer.CHOUON_SKIP,
+    upper: Romanizer.UPPER_NONE
+});
 export default {
     data() {
         return {
             song:{
                 song_id:null,
                 song_title:null,
-                song_name:null,
-                song_name_jp:null,
-                song_name_en:null,
+                song_title_jp:null,
+                song_title_en:null,
                 artist_id:null,
                 sub_artist_1:null,
                 sub_artist_2:null,
@@ -273,6 +279,10 @@ export default {
                 }
             })
         },
+        handleName() {
+            this.song.song_title_jp = autokana.getFurigana();
+            this.song.song_title_en = r.romanize(this.song.song_title_jp)
+        }
     },
     mounted() {
         this.song.song_id = this.$route.query.songId;
@@ -281,6 +291,7 @@ export default {
         }
         this.artistRead();
         this.octaveRead();
+        autokana = AutoKana.bind('#song_title', '#song_title_jp');
     },
 };
 </script>
