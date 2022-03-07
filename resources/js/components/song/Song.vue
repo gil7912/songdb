@@ -291,7 +291,7 @@ export default {
         }
         this.artistRead();
         this.octaveRead();
-        autokana = AutoKana.bind('#song_title', '#song_title_jp');
+        autokana = AutoKana.bind('#song_title');
     },
 };
 </script>
