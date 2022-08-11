@@ -20,10 +20,10 @@
         <el-form :model="artist" label-position="top" v-loading="loading">
             <el-card class="main-card">
                 <el-form-item label-width="150px" label="アーティスト名">
-                    <el-input class="input" v-model="artist.artist_name"></el-input>
+                    <el-input class="input" id="artist_name" v-model="artist.artist_name" @input="handleName"></el-input>
                 </el-form-item>
                 <el-form-item label-width="150px" label="アーティスト名(かな)">
-                    <el-input class="input" v-model="artist.artist_name_jp"></el-input>
+                    <el-input class="input" id="artist_name_jp" v-model="artist.artist_name_jp"></el-input>
                 </el-form-item>
                 <el-form-item label-width="150px" label="アーティスト名(English)">
                     <el-input class="input" v-model="artist.artist_name_en"></el-input>
@@ -55,6 +55,13 @@
 </template>
 
 <script>
+import * as AutoKana from 'vanilla-autokana';
+let autokana;
+const Romanizer = require('js-hira-kata-romanize');
+const r = new Romanizer({
+    chouon: Romanizer.CHOUON_SKIP,
+    upper: Romanizer.UPPER_NONE
+});
 export default {
     data() {
         return {
@@ -78,6 +85,7 @@ export default {
     methods: {
         create() {
             this.loading=true;
+            this.checkArtist();
             axios.post("/api/artists/create", this.artist).then((res) => {
                 this.$message({
                     showClose: true,
@@ -103,7 +111,7 @@ export default {
         },
         update() {
             this.loading=true;
-            console.log(this.artist);
+            this.checkArtist();
             axios.put("/api/artists/update", this.artist).then((res) => {
                 this.$message({
                     showClose: true,
@@ -128,11 +136,8 @@ export default {
             });
         },
         suggestArtist(query, cb) {
-            console.log(query)
             axios.post('/api/artists/search', {searchKey: query}).then((res) => {
-                console.log(res.data)
                 const results = res.data.map((r) => {return {value: r.artist_name, artist_id: String(r.artist_id)}})
-                console.log(results)
                 cb(results)
             }).catch((e)=> {
             });
@@ -144,6 +149,14 @@ export default {
         selectAlter2(artist){
             this.artist.alter_2 = artist.artist_id;
             this.displays.alter_2 = artist.value;
+        },
+        checkArtist(){
+            if(!this.displays.alter_1){
+                this.artist.alter_1 = null;
+            }
+            if(!this.displays.alter_2){
+                this.artist.alter_2 = null;
+            }
         },
         artistRead() {
             axios.post("/api/artists/readDetail", {artistId: this.artist.artist_id}).then((res) => {
@@ -173,6 +186,10 @@ export default {
                 }
             })
         },
+        handleName() {
+            this.artist.artist_name_jp = autokana.getFurigana();
+            this.artist.artist_name_en = r.romanize(this.artist.artist_name_jp)
+        }
     },
     mounted() {
         this.artist.artist_id = this.$route.query.artistId;
@@ -180,6 +197,7 @@ export default {
             this.artistRead();
         }
         this.artistsReadForPullDown();
+        autokana = AutoKana.bind('#artist_name', '#artist_name_jp');
     },
 };
 </script>

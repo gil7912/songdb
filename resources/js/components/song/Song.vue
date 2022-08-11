@@ -155,6 +155,7 @@ export default {
     methods: {
         create() {
             this.loading=true;
+            this.checkArtist();
             this.song.highest_note = this.octave_1 * 12 + this.octave_2 + 1;
             axios.post("/api/songs/create", this.song).then((res) => {
                 this.$message({
@@ -181,6 +182,7 @@ export default {
         },
         update() {
             this.loading=true;
+            this.checkArtist();
             this.song.highest_note = this.octave_1 * 12 + this.octave_2 + 1;
             axios.put("/api/songs/update", this.song).then((res) => {
                 this.$message({
@@ -259,17 +261,15 @@ export default {
             this.displays.artist_name_3 = artist.value;
         },
         checkArtist(){
-            this.artists.forEach(r => {
-                if(this.song.artist_id && this.song.artist_id === r.artist_id && this.displays.artist_name_1 !== r.artist_name){
-                    this.songs.artist_id = "";
-                }
-                if(this.song.sub_artist_1 && this.song.sub_artist_1 === r.artist_id && this.displays.artist_name_2 !== r.artist_name){
-                    this.songs.sub_artist_1 = "";
-                }
-                if(this.song.sub_artist_2 && this.song.sub_artist_2 === r.artist_id && this.displays.artist_name_3 !== r.artist_name){
-                    this.songs.sub_artist_2 = "";
-                }
-            });
+            if(!this.displays.artist_name_1){
+                this.song.artist_id = null;
+            }
+            if(!this.displays.artist_name_2){
+                this.song.sub_artist_1 = null;
+            }
+            if(!this.displays.artist_name_3){
+                this.song.sub_artist_2 = null;
+            }
         },
         back(){
             this.$router.push({
