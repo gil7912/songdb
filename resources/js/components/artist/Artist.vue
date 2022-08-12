@@ -197,7 +197,7 @@ export default {
             this.artistRead();
         }
         this.artistsReadForPullDown();
-        autokana = AutoKana.bind('#artist_name', '#artist_name_jp');
+        autokana = AutoKana.bind('#artist_name');
     },
 };
 </script>

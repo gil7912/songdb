@@ -25,11 +25,6 @@
                 <el-form-item label-width="150px" label="楽曲名">
                     <el-input class="input" id="song_title" v-model="song.song_title" @input="handleName"></el-input>
                 </el-form-item>
-            </el-card>
-            <el-card class="option-card">
-                <div slot="header" class="clearfix">
-                    <span>任意</span>
-                </div>
                 <el-form-item label-width="150px" label="アーティスト">
                     <el-autocomplete
                         v-model="displays.artist_name_1"
@@ -38,6 +33,11 @@
                         @select="selectArtist1"
                     ></el-autocomplete>
                 </el-form-item>
+            </el-card>
+            <el-card class="option-card">
+                <div slot="header" class="clearfix">
+                    <span>任意</span>
+                </div>
                 <el-form-item label-width="150px" label="最高音">
                     <el-select class="notes" v-model="octave_1" clearable placeholder="Select">
                         <el-option
