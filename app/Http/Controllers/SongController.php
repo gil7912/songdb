@@ -22,6 +22,7 @@ class SongController extends Controller
         $keyword = $request->searchKey;
         $orderKey = $request->orderKey;
         $orderValue = $request->orderValue;
+        $matchType = $request->matchType;
         
         if(!$orderKey || !$orderValue){
             $orderKey = 'song_id';
@@ -29,11 +30,19 @@ class SongController extends Controller
         }
 
         $query = Song::leftjoin('mst_artist', 'mst_song.artist_id', '=', 'mst_artist.artist_id')
-        ->leftjoin('sys_mst_octaves', 'mst_song.highest_note', '=', 'sys_mst_octaves.scale')
-        ->where('song_title', 'LIKE', "{$keyword}%")
-        ->orWhere('song_title_jp', 'LIKE', "{$keyword}%")
-        ->orWhere('song_title_en', 'LIKE', "{$keyword}%")
-        ->orderBy($orderKey, $orderValue);
+        ->leftjoin('sys_mst_octaves', 'mst_song.highest_note', '=', 'sys_mst_octaves.scale');
+        
+        if($matchType){
+            $query->where('song_title', 'LIKE', "%{$keyword}%")
+            ->orWhere('song_title_jp', 'LIKE', "%{$keyword}%")
+            ->orWhere('song_title_en', 'LIKE', "%{$keyword}%");
+        } else {
+            $query->where('song_title', 'LIKE', "{$keyword}%")
+            ->orWhere('song_title_jp', 'LIKE', "{$keyword}%")
+            ->orWhere('song_title_en', 'LIKE', "{$keyword}%");
+        }
+
+        $query->orderBy($orderKey, $orderValue);
         $data = $query->get();
         return $data;
     }

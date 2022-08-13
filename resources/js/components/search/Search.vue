@@ -10,6 +10,13 @@
                         <el-button @click="searchSongs">検索</el-button>
                     </el-col>
                 </el-row>
+                <el-row>
+                    <el-switch
+                        v-model="matchType"
+                        inactive-text="前方一致"
+                        active-text="部分一致">
+                    </el-switch>
+                </el-row>
                 <el-table ref="songTable" :data="songs" @row-click="selectSong" highlight-current-row max-height="515" v-loading="loading" @sort-change="sortChangeSong" style="width: 100%">
                     <el-table-column prop="song_title" label="タイトル" min-width="95" sortable>
                     </el-table-column>
@@ -33,6 +40,13 @@
                     <el-col :span=5 class="search_button">
                         <el-button @click="searchArtists">検索</el-button>
                     </el-col>
+                </el-row>
+                <el-row>
+                    <el-switch
+                        v-model="matchType"
+                        inactive-text="前方一致"
+                        active-text="部分一致">
+                    </el-switch>
                 </el-row>
                 <el-table ref="artistTable" :data="artists" @expand-change="expandArtist" @row-click="selectArtist" highlight-current-row max-height="515" v-loading="loading" @sort-change="sortChangeArtist" style="width: 100%">
                     <el-table-column type="expand" min-width="35">
@@ -74,7 +88,8 @@ export default {
             currentRow: null,
             loading: false,
             orderKey: '',
-            orderValue: ''
+            orderValue: '',
+            matchType: false,
         };
     },
     methods: {
@@ -91,7 +106,7 @@ export default {
             console.log(this.searchKey);
             console.log(this.orderKey);
             console.log(this.orderValue);
-            axios.post('/api/songs/search', {searchKey: this.searchKey, orderKey: this.orderKey, orderValue: this.orderValue}).then((res) => {
+            axios.post('/api/songs/search', {searchKey: this.searchKey, orderKey: this.orderKey, orderValue: this.orderValue, matchType: this.matchType}).then((res) => {
                 this.songs = res.data;
                 this.loading = false;
             }).catch((e)=> {
@@ -230,7 +245,7 @@ export default {
             console.log(this.searchKey);
             console.log(this.orderKey);
             console.log(this.orderValue);
-            axios.post('/api/artists/search', {searchKey: this.searchKey, orderKey: this.orderKey, orderValue: this.orderValue}).then((res) => {
+            axios.post('/api/artists/search', {searchKey: this.searchKey, orderKey: this.orderKey, orderValue: this.orderValue, matchType: this.matchType}).then((res) => {
                 this.artists = res.data;
                 this.artists.map(artist => {
                     artist.expand = false;
@@ -292,6 +307,10 @@ export default {
         width: 60px;
         height: 60px;
         z-index: 1;
+    }
+
+    .el-switch{
+        margin: 10px 0 0 10px;
     }
 
 </style>
