@@ -100,4 +100,11 @@ class SongController extends Controller
             'memo' => $request->memo,
         ]);
     }
+
+    public function updateScore(Request $request)
+    {
+        Song::find($request->song_id)->update([
+            'high_score' => $request->high_score,
+        ]);
+    }
 }

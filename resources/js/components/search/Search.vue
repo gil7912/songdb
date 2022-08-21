@@ -12,19 +12,29 @@
                 </el-row>
                 <el-row>
                     <el-switch
+                        class="el-switch"
                         v-model="matchType"
                         inactive-text="前方一致"
                         active-text="部分一致">
                     </el-switch>
                 </el-row>
                 <el-table ref="songTable" :data="songs" @row-click="selectSong" highlight-current-row max-height="515" v-loading="loading" @sort-change="sortChangeSong" style="width: 100%">
-                    <el-table-column prop="song_title" label="タイトル" min-width="95" sortable>
+                    <el-table-column prop="song_title" label="タイトル" min-width="95" sortable="custom">
                     </el-table-column>
-                    <el-table-column prop="artist_name" label="アーティスト" min-width="125" sortable>
+                    <el-table-column prop="artist_name" label="アーティスト" min-width="125" sortable="custom">
                     </el-table-column>
-                    <el-table-column prop="high_score" label="最高点" min-width="65" sortable>
+                    <el-table-column prop="high_score" label="最高点" min-width="65" sortable="custom">
+                        <template slot-scope="scope">
+                            <el-popover width="50%" trigger="click" placement="top" @show="popover(scope.row.song_id, scope.row.high_score)">
+                                <el-input class="pop_input"  type="number" v-model="popoverScore"></el-input>
+                                <el-button class="pop_button" round size="small" @click="registerScore">登録</el-button>
+                                <div slot="reference" class="name-wrapper">
+                                    　{{scope.row.high_score}}　
+                                </div>
+                            </el-popover>
+                        </template>
                     </el-table-column>
-                    <el-table-column prop="scale_name" label="最高音" min-width="70" sortable>
+                    <el-table-column prop="scale_name" label="最高音" min-width="70" sortable="custom">
                     </el-table-column>
                 </el-table>
                 <el-pagination layout="total" :total="songs.length"></el-pagination>
@@ -62,9 +72,9 @@
                             <el-pagination layout="total" :total="props.row.songs.length"></el-pagination>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="artist_name" label="アーティスト" min-width="155" sortable>
+                    <el-table-column prop="artist_name" label="アーティスト" min-width="155" sortable="custom">
                     </el-table-column>
-                    <el-table-column prop="alter_name_1" label="別名義1" min-width="155" sortable>
+                    <el-table-column prop="alter_name_1" label="別名義1" min-width="155" sortable="custom">
                     </el-table-column>
                 </el-table>
                 <el-pagination layout="total" :total="artists.length"></el-pagination>
@@ -90,6 +100,8 @@ export default {
             orderKey: '',
             orderValue: '',
             matchType: false,
+            popoverSong: null,
+            popoverScore: null,
         };
     },
     methods: {
@@ -275,6 +287,33 @@ export default {
                     this.loading = false;
                 }
             }
+        },
+        popover(song_id, high_score){
+            console.log(song_id);
+            console.log(high_score);
+            this.popoverSong = song_id;
+            this.popoverScore = high_score;
+        },
+        registerScore(){
+            console.log(this.popoverSong);
+            console.log(this.popoverScore);
+            axios.put("/api/songs/score", {song_id: this.popoverSong, high_score: this.popoverScore}).then((res) => {
+                this.$message({
+                    showClose: true,
+                    message: '登録しました',
+                    type: 'success'
+                });
+                this.searchSongs();
+                this.loading=false;
+            }).catch((e)=> {
+                this.$message({
+                    showClose: true,
+                    message: '登録失敗しました...',
+                    type: 'error'
+                });
+                this.loading=false;
+                console.log(e)
+            });
         }
     },
     mounted() {
@@ -311,6 +350,14 @@ export default {
 
     .el-switch{
         margin: 10px 0 0 10px;
+    }
+
+    .pop_input{
+        width: 50%;
+    }
+
+    .pop_button{
+        margin-left: 10px;
     }
 
 </style>

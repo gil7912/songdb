@@ -24,6 +24,7 @@ Route::post('/songs/artist', 'SongController@searchByArtistId');
 Route::post('/songs/readDetail', 'SongController@readDetail');
 Route::post('/songs/create', 'SongController@create');
 Route::put('/songs/update', 'SongController@update');
+Route::put('/songs/score', 'SongController@updateScore');
 
 Route::get('/artists/read', 'ArtistController@read');
 Route::post('/artists/search', 'ArtistController@search');
