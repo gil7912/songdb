@@ -65,6 +65,15 @@
                                 <el-table-column prop="song_title" label="タイトル" min-width="215">
                                 </el-table-column>
                                 <el-table-column prop="high_score" label="最高点" min-width="65">
+                                    <template slot-scope="scope">
+                                        <el-popover width="50%" trigger="click" placement="top" @show="popover(scope.row.song_id, scope.row.high_score)">
+                                            <el-input class="pop_input"  type="number" v-model="popoverScore"></el-input>
+                                            <el-button class="pop_button" round size="small" @click="registerScoreForArtist(props.row)">登録</el-button>
+                                            <div slot="reference" class="name-wrapper">
+                                            　{{scope.row.high_score}}　
+                                            </div>
+                                        </el-popover>
+                                    </template>
                                 </el-table-column>
                                 <el-table-column prop="scale_name" label="最高音" min-width="70">
                                 </el-table-column>
@@ -101,7 +110,7 @@ export default {
             orderValue: '',
             matchType: false,
             popoverSong: null,
-            popoverScore: null,
+            popoverScore: null
         };
     },
     methods: {
@@ -304,6 +313,39 @@ export default {
                     type: 'success'
                 });
                 this.searchSongs();
+                this.loading=false;
+            }).catch((e)=> {
+                this.$message({
+                    showClose: true,
+                    message: '登録失敗しました...',
+                    type: 'error'
+                });
+                this.loading=false;
+                console.log(e)
+            });
+        },
+        registerScoreForArtist(row){
+            console.log(this.popoverSong);
+            console.log(this.popoverScore);
+            console.log(row)
+            axios.put("/api/songs/score", {song_id: this.popoverSong, high_score: this.popoverScore}).then((res) => {
+                this.$message({
+                    showClose: true,
+                    message: '登録しました',
+                    type: 'success'
+                });
+                const idList = [];
+                if(row.artist_id)idList.push(row.artist_id);
+                if(row.alter_1)idList.push(row.alter_1);
+                if(row.alter_2)idList.push(row.alter_2);
+                try{
+                    axios.post('/api/songs/artist', {artistIds: idList}).then((res) => {
+                        row.songs = res.data;
+                        this.loading = false;
+                    });
+                } catch(e){
+                    this.loading = false;
+                }
                 this.loading=false;
             }).catch((e)=> {
                 this.$message({

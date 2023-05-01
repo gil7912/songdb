@@ -23,11 +23,6 @@ class SongController extends Controller
         $orderKey = $request->orderKey;
         $orderValue = $request->orderValue;
         $matchType = $request->matchType;
-        
-        if(!$orderKey || !$orderValue){
-            $orderKey = 'song_id';
-            $orderValue = 'asc';
-        }
 
         $query = Song::leftjoin('mst_artist', 'mst_song.artist_id', '=', 'mst_artist.artist_id')
         ->leftjoin('sys_mst_octaves', 'mst_song.highest_note', '=', 'sys_mst_octaves.scale');
@@ -42,7 +37,10 @@ class SongController extends Controller
             ->orWhere('song_title_en', 'LIKE', "{$keyword}%");
         }
 
-        $query->orderBy($orderKey, $orderValue);
+        if($orderKey && $orderValue){
+            $query->orderBy($orderKey, $orderValue);
+        }
+        $query->orderBy('song_id', 'asc');
         $data = $query->get();
         return $data;
     }

@@ -19,6 +19,9 @@
         <el-main class="main">
         <el-form :model="artist" label-position="top" v-loading="loading">
             <el-card class="main-card">
+                <el-form-item label-width="50px" label="自動補完">
+                    <el-switch id="is_handle" v-model="artist.is_handle"></el-switch>
+                </el-form-item>
                 <el-form-item label-width="150px" label="アーティスト名">
                     <el-input class="input" id="artist_name" v-model="artist.artist_name" @input="handleName"></el-input>
                 </el-form-item>
@@ -73,6 +76,7 @@ export default {
                 alter_1:null,
                 alter_2:null,
                 memo:null,
+                is_handle:true
             },
             displays: {
                 alter_1: '',
@@ -187,8 +191,10 @@ export default {
             })
         },
         handleName() {
-            this.artist.artist_name_jp = autokana.getFurigana();
-            this.artist.artist_name_en = r.romanize(this.artist.artist_name_jp)
+            if(this.artist.is_handle){
+                this.artist.artist_name_jp = autokana.getFurigana();
+                this.artist.artist_name_en = r.romanize(this.artist.artist_name_jp);
+            }
         }
     },
     mounted() {

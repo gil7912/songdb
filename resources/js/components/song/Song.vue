@@ -22,6 +22,9 @@
                 <div slot="header" class="clearfix">
                     <span>必須</span>
                 </div>
+                <el-form-item label-width="50px" label="自動補完">
+                    <el-switch id="is_handle" v-model="song.is_handle"></el-switch>
+                </el-form-item>
                 <el-form-item label-width="150px" label="楽曲名">
                     <el-input class="input" id="song_title" v-model="song.song_title" @input="handleName"></el-input>
                 </el-form-item>
@@ -117,6 +120,7 @@ export default {
                 high_score:null,
                 low_score:null,
                 memo:null,
+                is_handle: true
             },
             artists:[],
             octaves:[],
@@ -280,8 +284,10 @@ export default {
             })
         },
         handleName() {
-            this.song.song_title_jp = autokana.getFurigana();
-            this.song.song_title_en = r.romanize(this.song.song_title_jp)
+            if(this.song.is_handle){
+                this.song.song_title_jp = autokana.getFurigana();
+                this.song.song_title_en = r.romanize(this.song.song_title_jp);
+            }
         }
     },
     mounted() {

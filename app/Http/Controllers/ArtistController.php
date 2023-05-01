@@ -25,11 +25,6 @@ class ArtistController extends Controller
         $orderKey = $request->orderKey;
         $orderValue = $request->orderValue;
         $matchType = $request->matchType;
-        
-        if(!$orderKey || !$orderValue){
-            $orderKey = 'artist_id';
-            $orderValue = 'asc';
-        }
 
         $query = Artist::from('mst_artist as main')
         ->select('main.artist_id','main.alter_1','main.alter_2','main.artist_name','alter_artist_1.artist_name as alter_name_1','alter_artist_2.artist_name as alter_name_2')
@@ -46,7 +41,11 @@ class ArtistController extends Controller
             ->orWhere('main.artist_name_en', 'LIKE', "{$keyword}%");
         }
 
-        $query->orderBy($orderKey, $orderValue);
+        if($orderKey && $orderValue){
+            $query->orderBy($orderKey, $orderValue);
+        }
+        $query->orderBy('artist_id', 'asc');
+
         $data = $query->get();
         return $data;
     }
