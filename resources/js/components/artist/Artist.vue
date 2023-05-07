@@ -165,6 +165,7 @@ export default {
         artistRead() {
             axios.post("/api/artists/readDetail", {artistId: this.artist.artist_id}).then((res) => {
                 this.artist = res.data;
+                this.artist.is_handle = false;
             });
         },
         artistsReadForPullDown() {

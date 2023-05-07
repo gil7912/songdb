@@ -214,6 +214,7 @@ export default {
         songRead() {
             axios.post("/api/songs/readDetail", {songId: this.song.song_id}).then((res) => {
                 this.song = res.data;
+                this.song.is_handle = false;
                 this.octave_1 = Math.floor((this.song.highest_note - 1) / 12);
                 this.octave_2 = (this.song.highest_note - 1) % 12;
                 console.log(this.song);
